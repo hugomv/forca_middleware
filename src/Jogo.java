@@ -25,7 +25,7 @@ public class Jogo {
             palavras.add(linha);
             while (linha != null) {
                 linha = lerArq.readLine();
-                palavras.add(linha);
+                if(linha !=null) palavras.add(linha.toLowerCase());
 
             }
 
@@ -35,8 +35,8 @@ public class Jogo {
         }
         //sortear a palavra
         Random gerador = new Random();
-        palavra = palavras.get(gerador.nextInt(palavras.size()));
-
+        palavra = palavras.get(gerador.nextInt(palavras.size())-1);
+//        palavra = "amor";
         for(int i = 0; i < palavra.length();i++){
             palavra_oculta.add("_");
 
@@ -71,9 +71,10 @@ public class Jogo {
 
             int i = 0;
             jogador.setPontuacao(gerarRoletaPontuacao());
-            while(palavra.substring(i).contains(letra)){
-                i = palavra.substring(i).indexOf(letra);
+            while(i < palavra.length() && palavra.substring(i).contains(letra)){
+                i = palavra.substring(i).indexOf(letra) + i;
                 palavra_oculta.set(i,letra);
+                i++;
 
             }
             //ver se a palavra está completa

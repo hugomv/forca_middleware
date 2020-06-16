@@ -2,21 +2,21 @@ Cozinheiro
 Cuecas
 Voar
 Cozinhar
-Amarelo
+amarelo
 Dinheiro
 Calças
 Chupeta
 Marrom
 Pino
-Animal
+animal
 Pino
-Abelha
+abelha
 Cubo
 Panda
 Menina
 Casa
 Fantasma
-Limão
+Limao
 Sino
 Voar
 Praia
@@ -33,7 +33,7 @@ Mapa
 Pescoço
 Filha
 Preto
-Borboleta
+borboleta
 Caixa
 Comer
 Feio
@@ -44,12 +44,12 @@ Farinha
 Ovos
 Leite
 Cenoura
-Abobrinha
+abobrinha
 Sardinha
 Figo
 Vegetais
 Figo
-Banana
+banana
 Tomate
 Cereais
 Cebola
@@ -65,15 +65,15 @@ Pomba
 Minhoca
 Cachorro
 Cavalo marinho
-Baiacu
-Besouro
-Arraia
-Avestruz
+baiacu
+besouro
+arraia
+avestruz
 Periquito australiano
-Falcão
+Falcao
 Gato
 Pomba
-Baiacu
+baiacu
 Gafanhoto
 Canguru
 Hamster
@@ -81,12 +81,12 @@ Galinha
 Gorila
 Tigre
 Camelo
-Aranha
+aranha
 Cavalo
-Dromedário
+Dromedario
 Chita
 Elefante
-Pônei
+Ponei
 
 
 

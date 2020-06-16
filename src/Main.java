@@ -15,17 +15,17 @@ public class Main {
             String letra = jogo.exibirRodada(jogador1);
             i = jogo.processarRodada(jogador1, letra);
 
-            if(i==-1)break;
+            if(i==1)break;
 
             letra = jogo.exibirRodada(jogador2);
             i = jogo.processarRodada(jogador2, letra);
 
-            if(i==-1)break;
+            if(i==1)break;
 
             letra = jogo.exibirRodada(jogador3);
             i = jogo.processarRodada(jogador3, letra);
 
-            if(i==-1)break;
+            if(i==1)break;
         }
 
         System.out.println("Jogo finalizado! Placar:");
