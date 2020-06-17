@@ -8,8 +8,8 @@ import java.util.Scanner;
 public class Jogo {
 
     private ArrayList<String> palavras = new ArrayList<String>();
-    private String palavra;
-    private ArrayList<String> palavra_oculta = new ArrayList<>();
+    private ArrayList<String> trespalavras = new ArrayList<>();
+    private ArrayList<ArrayList<String>> palavras_ocultas = new ArrayList<>();
     private boolean completo;
 
     public Jogo(){
@@ -35,11 +35,17 @@ public class Jogo {
         }
         //sortear a palavra
         Random gerador = new Random();
-        palavra = palavras.get(gerador.nextInt(palavras.size())-1);
-//        palavra = "amor";
-        for(int i = 0; i < palavra.length();i++){
-            palavra_oculta.add("_");
+        trespalavras.add(palavras.get(gerador.nextInt(palavras.size())-1));
+        trespalavras.add(palavras.get(gerador.nextInt(palavras.size())-1));
+        trespalavras.add(palavras.get(gerador.nextInt(palavras.size())-1));
 
+//        palavra = "amor";
+        for(String palavra : trespalavras) {
+            ArrayList<String> palavra_oculta = new ArrayList<>();
+            for (int i = 0; i < palavra.length(); i++) {
+                palavra_oculta.add("_");
+            }
+            palavras_ocultas.add(palavra_oculta);
         }
 
     }
@@ -50,7 +56,9 @@ public class Jogo {
      * @return = letra escolhida pelo jogador
      */
     public String exibirRodada(Jogador jogador){
-        System.out.println(palavra_oculta);
+        for(ArrayList<String> palavra_oculta : palavras_ocultas) {
+            System.out.println(palavra_oculta);
+        }
 
         Scanner scanner = new Scanner(System.in);
 
@@ -67,18 +75,24 @@ public class Jogo {
      */
     public int processarRodada(Jogador jogador, String letra){
 
-        if(palavra.contains(letra)){
+        if(trespalavras.get(0).contains(letra) || trespalavras.get(1).contains(letra) || trespalavras.get(2).contains(letra)){
 
-            int i = 0;
             jogador.setPontuacao(gerarRoletaPontuacao());
-            while(i < palavra.length() && palavra.substring(i).contains(letra)){
-                i = palavra.substring(i).indexOf(letra) + i;
-                palavra_oculta.set(i,letra);
-                i++;
 
+            for(int k = 0; k < 3; k++) {
+                String palavra = trespalavras.get(k);
+
+                int i = 0;
+                while (i < palavra.length() && palavra.substring(i).contains(letra)) {
+                    i = palavra.substring(i).indexOf(letra) + i;
+                    palavras_ocultas.get(k).set(i, letra);
+                    i++;
+
+                }
             }
+
             //ver se a palavra está completa
-            if(!palavra_oculta.contains("_")){
+            if(!palavras_ocultas.get(0).contains("_") && !palavras_ocultas.get(1).contains("_") && !palavras_ocultas.get(2).contains("_")){
                 completo = true;
                 return 1;
             }else {
