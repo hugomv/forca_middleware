@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -53,16 +54,17 @@ public class Jogo {
     /**
      * Exibe o prompt para que o jogador informe a próxima letra
      * @param jogador = identificador do jogador
+     * @param cliente1
      * @return = letra escolhida pelo jogador
      */
-    public String exibirRodada(Jogador jogador){
+    public String exibirRodada(Jogador jogador, Socket cliente1){
         for(ArrayList<String> palavra_oculta : palavras_ocultas) {
             System.out.println(palavra_oculta);
         }
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print(String.format("Jogador %d, informe uma letra ",jogador.getCodigo()));
+        //cliente1.getOutputStream(String.format("Jogador %d, informe uma letra ",jogador.getCodigo()));
         String letra = scanner.next();
         return letra;
     }
@@ -71,9 +73,10 @@ public class Jogo {
      * Analisa se a letra informada consta na palavra
      * @param   letra   palavra informada pelo usuário
 *               jogador identificador do jogador
+     * @param cliente
      * @return      0 se constar; -1 se não; 1 se palavra completa
      */
-    public int processarRodada(Jogador jogador, String letra){
+    public int processarRodada(Jogador jogador, String letra, Socket cliente){
 
         if(trespalavras.get(0).contains(letra) || trespalavras.get(1).contains(letra) || trespalavras.get(2).contains(letra)){
 
