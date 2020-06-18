@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
@@ -57,15 +55,24 @@ public class Jogo {
      * @param cliente1
      * @return = letra escolhida pelo jogador
      */
-    public String exibirRodada(Jogador jogador, Socket cliente1){
+    public String exibirRodada(Jogador jogador, Socket cliente1) throws IOException {
+
+        PrintWriter out = new PrintWriter(cliente1.getOutputStream(), true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(cliente1.getInputStream()));
+        StringBuilder saida = new StringBuilder();
+
         for(ArrayList<String> palavra_oculta : palavras_ocultas) {
-            System.out.println(palavra_oculta);
+            out.println((palavra_oculta));
+        }
+        out.println(String.format("Jogador %d, informe uma letra ",jogador.getCodigo()) + "\n");
+
+        out.close();
+        String letra;
+
+        while ((letra = in.readLine()) == null){
+            //aguardando input do jogador
         }
 
-        Scanner scanner = new Scanner(System.in);
-
-        //cliente1.getOutputStream(String.format("Jogador %d, informe uma letra ",jogador.getCodigo()));
-        String letra = scanner.next();
         return letra;
     }
 
@@ -73,10 +80,11 @@ public class Jogo {
      * Analisa se a letra informada consta na palavra
      * @param   letra   palavra informada pelo usuário
 *               jogador identificador do jogador
-     * @param cliente
+     * @param   jogador
+     *          letra
      * @return      0 se constar; -1 se não; 1 se palavra completa
      */
-    public int processarRodada(Jogador jogador, String letra, Socket cliente){
+    public int processarRodada(Jogador jogador, String letra){
 
         if(trespalavras.get(0).contains(letra) || trespalavras.get(1).contains(letra) || trespalavras.get(2).contains(letra)){
 
