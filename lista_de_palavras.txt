@@ -55,7 +55,6 @@ Cereais
 Cebola
 Melancia
 Leite
-Carne de porco
 Vinagre
 Gorila
 Coala
@@ -64,12 +63,12 @@ Lagosta
 Pomba
 Minhoca
 Cachorro
-Cavalo marinho
+Cavalo
 baiacu
 besouro
 arraia
 avestruz
-Periquito australiano
+Periquito
 Falcao
 Gato
 Pomba
@@ -87,7 +86,3 @@ Dromedario
 Chita
 Elefante
 Ponei
-
-
-
-

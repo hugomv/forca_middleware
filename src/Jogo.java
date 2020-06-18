@@ -58,16 +58,16 @@ public class Jogo {
     public String exibirRodada(Jogador jogador, Socket cliente1) throws IOException {
 
         PrintWriter out = new PrintWriter(cliente1.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(cliente1.getInputStream()));
         StringBuilder saida = new StringBuilder();
 
         for(ArrayList<String> palavra_oculta : palavras_ocultas) {
             out.println((palavra_oculta));
         }
-        out.println(String.format("Jogador %d, informe uma letra ",jogador.getCodigo()) + "\n");
-
-        out.close();
+        out.println(String.format("Jogador %d, informe uma letra ",jogador.getCodigo()));
+        out.flush();
         String letra;
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(cliente1.getInputStream()));
 
         while ((letra = in.readLine()) == null){
             //aguardando input do jogador

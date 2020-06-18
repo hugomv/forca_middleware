@@ -7,7 +7,9 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 public class Cliente {
+
 
 
     public static void main(String[] args) {
@@ -16,7 +18,6 @@ public class Cliente {
 
         try {
             cliente = new Socket("127.0.0.1",3322);
-            PrintWriter out = new PrintWriter(cliente.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
 
             while (cliente.isConnected()){
@@ -25,15 +26,18 @@ public class Cliente {
                     //aguarda até receber input
                 }
                 System.out.println(inputLine);
+                System.out.println(in.readLine());
+                System.out.println(in.readLine());
+                System.out.println(in.readLine());
 
-                while ((inputLine = in.readLine()) != null){
-                    System.out.println(inputLine);
-                }
-                in.close();
+
+                //in.close();
+                PrintWriter out = new PrintWriter(cliente.getOutputStream(), true);
                 Scanner teclado = new Scanner(System.in);
                 String letra = teclado.nextLine();
                 out.println(letra);
                 out.flush();
+                //out.close();
 
             }
 
