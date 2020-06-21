@@ -1,93 +1,107 @@
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TServer.Args;
+import org.apache.thrift.server.TSimpleServer;
+import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.transport.TSSLTransportFactory;
+import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
+import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TServerTransport;
+
+// Generated code
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static Forca.Iface jogo;
 
-        Jogador jogador1 = new Jogador(1);
-        Jogador jogador2 = new Jogador(2);
-        Jogador jogador3 = new Jogador(3);
+    public static Forca.Processor processor;
 
-        Jogo jogo = new Jogo();
-
-
-
+    public static void main(String [] args) {
         try {
-            ServerSocket server = new ServerSocket(3322);
-            System.out.println("Servidor iniciado na porta 3322");
 
-            int i = 0;
+            jogo = new Jogo();
+            processor = new Forca.Processor(jogo);
 
-            Socket cliente1 = new Socket();
-            Socket cliente2 = new Socket();
-            Socket cliente3 = new Socket();
-
-            while(i<3) {
-                if(i==0) {
-                    cliente1 = server.accept();
-                    System.out.println("Jogador 1 conectado do IP " + cliente1.getInetAddress().
-                            getHostAddress());
+            Runnable simple = new Runnable() {
+                public void run() {
+                    simple(processor);
                 }
+            };
+//            Runnable secure = new Runnable() {
+//                public void run() {
+//                    secure(processor);
+//                }
+//            };
 
-                if(i==1) {
-                    cliente2 = server.accept();
-                    System.out.println("Jogador 2 conectado do IP " + cliente2.getInetAddress().
-                            getHostAddress());
-                }
-
-                if(i==2) {
-                    cliente3 = server.accept();
-                    System.out.println("Jogador 3 conectado do IP " + cliente3.getInetAddress().
-                            getHostAddress());
-                }
-                i++;
-            }
-
-            i = 0;
-            while (true){
-
-                String letra = jogo.exibirRodada(jogador1,cliente1);
-                i = jogo.processarRodada(jogador1, letra);
-
-                if(i==1)break;
-
-                letra = jogo.exibirRodada(jogador2, cliente2);
-                i = jogo.processarRodada(jogador2, letra);
-
-                if(i==1)break;
-
-                letra = jogo.exibirRodada(jogador3, cliente3);
-                i = jogo.processarRodada(jogador3, letra);
-
-                if(i==1)break;
-            }
-
-            System.out.println("Jogo finalizado! Placar:");
-            System.out.println(String.format("Jogador 1 /t Pontuacao: %d",jogador1.getPontuacao()));
-            System.out.println(String.format("Jogador 2 /t Pontuacao: %d",jogador2.getPontuacao()));
-            System.out.println(String.format("Jogador 3 /t Pontuacao: %d",jogador3.getPontuacao()));
-
-            cliente1.close();
-            cliente2.close();
-            cliente3.close();
-            server.close();
-
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            new Thread(simple).start();
+//            new Thread(secure).start();
+        } catch (Exception x) {
+            x.printStackTrace();
         }
+    }
 
+    public static void simple(Forca.Processor processor) {
+        try {
+            TServerTransport serverTransport = new TServerSocket(9090);
+//            TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
 
+            // Use this for a multithreaded server
+             TServer server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
 
+            System.out.println("Starting the simple server...");
+            server.serve();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public static void secure(Forca.Processor processor) {
+        try {
+            /*
+             * Use TSSLTransportParameters to setup the required SSL parameters. In this example
+             * we are setting the keystore and the keystore password. Other things like algorithms,
+             * cipher suites, client auth etc can be set.
+             */
+            TSSLTransportParameters params = new TSSLTransportParameters();
+            // The Keystore contains the private key
+            params.setKeyStore("../../lib/java/test/.keystore", "thrift", null, null);
 
+            /*
+             * Use any of the TSSLTransportFactory to get a server transport with the appropriate
+             * SSL configuration. You can use the default settings if properties are set in the command line.
+             * Ex: -Djavax.net.ssl.keyStore=.keystore and -Djavax.net.ssl.keyStorePassword=thrift
+             *
+             * Note: You need not explicitly call open(). The underlying server socket is bound on return
+             * from the factory class.
+             */
+            TServerTransport serverTransport = TSSLTransportFactory.getServerSocket(9091, 0, null, params);
+            TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
 
+            // Use this for a multi threaded server
+            // TServer server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
 
-
-
-
+            System.out.println("Starting the secure server...");
+            server.serve();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
