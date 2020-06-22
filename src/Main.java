@@ -26,7 +26,7 @@ import org.apache.thrift.transport.TServerTransport;
 
 public class Main {
 
-    public static Jogo jogo;
+    public static TratadorJogo jogo;
 
     public static Forca.Processor processor;
 
@@ -36,8 +36,9 @@ public class Main {
 
         try {
 
-            jogo = new Jogo();
+            jogo = new TratadorJogo();
             processor = new Forca.Processor(jogo);
+            System.out.print(jogo.getPalavras());
 
             Runnable simple = new Runnable() {
                 public void run() {
@@ -56,6 +57,7 @@ public class Main {
 //            new Thread(simple).start();
 //            new Thread(simple).start();
 //            new Thread(secure).start();
+
         } catch (Exception x) {
             x.printStackTrace();
         }

@@ -1,11 +1,9 @@
-import org.apache.thrift.TException;
-
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Jogo implements Forca.Iface{
+public class Jogo{
 
     private ArrayList<String> palavras = new ArrayList<String>();
     private ArrayList<String> trespalavras = new ArrayList<String >();
@@ -13,8 +11,6 @@ public class Jogo implements Forca.Iface{
     private boolean completo;
     private boolean bloqueado;
     private int roleta;
-    private int vez;
-    private ArrayList<Jogador> jogadores = new ArrayList<Jogador>();
 
     public Jogo(){
 
@@ -112,12 +108,10 @@ public class Jogo implements Forca.Iface{
                 completo = true;
                 return 1;
             }else {
-                setVez();
                 return 0;
             }
 
         }else{
-            setVez();
             return -1;
         }
     }
@@ -133,61 +127,26 @@ public class Jogo implements Forca.Iface{
     }
 
 
-    @Override
-    public Placar gerar_rodada(Letra letra, idJogador jogador) throws TException {
-        processarRodada(jogadores.get(jogador.getId()),letra.getLetra());
-
-        Placar placar = new Placar();
-        String aux = "";
-        for(ArrayList<String> palavra_oculta : palavras_ocultas) {
-            aux.concat((palavra_oculta.toString() + "\n"));
-        }
-
-        placar.setPlacar(aux);
-        return placar;
+    public ArrayList<String> getTrespalavras() {
+        return trespalavras;
     }
 
-    @Override
-    public Placar exibir_rodada(idJogador jogador) throws TException {
-
-        Placar placar = new Placar();
-        StringBuilder aux = new StringBuilder();
-        for(ArrayList<String> palavra_oculta : palavras_ocultas) {
-            aux.append((palavra_oculta.toString() + "\n"));
-        }
-        Random gerador = new Random();
-        jogadores.get(jogador.getId()).setPontuacao(gerador.nextInt(1000));
-        aux.append(String.format("Pontuacao da roleta: %d \n",roleta));
-        aux.append(String.format("Jogador %d, informe uma letra ",jogador.getId()));
-       placar.setPlacar(aux.toString());
-       return placar;
+    public void setTrespalavras(ArrayList<String> trespalavras) {
+        this.trespalavras = trespalavras;
     }
 
-    @Override
-    public idJogador set_jogador() throws TException {
-        setJogador(new Jogador(vez));
-        idJogador id = new idJogador();
-        id.setId(getVez());
-        setVez();
-        return id;
-
-
+    public ArrayList<ArrayList<String>> getPalavras_ocultas() {
+        return palavras_ocultas;
     }
 
-    @Override
-    public boolean estah_Completo() throws TException {
-        return completo;
+    public void setPalavras_ocultas(ArrayList<ArrayList<String>> palavras_ocultas) {
+        this.palavras_ocultas = palavras_ocultas;
     }
 
 
-    public Jogador getJogador(int id) {
-        return jogadores.get(id);
+    public int getRoleta() {
+        return roleta;
     }
-
-    public void setJogador(Jogador jogador) {
-        jogadores.add(jogador);
-    }
-
 
     public boolean isCompleto() {
         return completo;
@@ -205,17 +164,7 @@ public class Jogo implements Forca.Iface{
         this.bloqueado = bloqueado;
     }
 
-    @Override
-    public int getVez() {
-        return vez;
-    }
 
-    public void setVez() {
-        if(vez<2){
-            this.vez = vez + 1;
-        }else {
-            vez = 0;
-        }
 
-    }
+
 }
