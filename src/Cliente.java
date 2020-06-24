@@ -1,4 +1,5 @@
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
@@ -7,16 +8,22 @@ import java.util.Scanner;
 public class Cliente {
 
     static int id;
-    private static final String QUEUE_NAME = " ";
     static private Channel channel;
     static ConnectionFactory factory;
-    private static TratarJogo jogo;
+    private static Connection connection;
+
 
     public static void main(String[] args) throws Exception {
 
 
         System.out.println("Informe seu id. Caso novo jogador, somente digite enter:");
         Scanner teclado = new Scanner(System.in);
+        factory = new ConnectionFactory();
+//        factory.setPort(61613);
+//        factory.setHost("localhost");
+//        factory.setUsername("guest");
+//        factory.setPassword("guest");
+        connection = factory.newConnection();
         try {
             id = Integer.parseInt(teclado.next());
         }catch (NumberFormatException n){
@@ -50,6 +57,7 @@ public class Cliente {
     }
 
     public static void send(String queue, String message) throws Exception {
+        channel = connection.createChannel();
 
 
         channel.queueDeclare(queue, true, false, false, null);
@@ -61,6 +69,7 @@ public class Cliente {
     }
 
     public static void recvID() throws Exception {
+        channel = connection.createChannel();
 
 
         channel.queueDeclare("id", true, false, false, null);
@@ -76,6 +85,7 @@ public class Cliente {
 
     public static void recvPlacar() throws Exception {
 
+        channel = connection.createChannel();
 
         channel.exchangeDeclare("placar", "fanout");
         String queueName = channel.queueDeclare().getQueue();
@@ -89,7 +99,7 @@ public class Cliente {
             //System.out.println(" [x] Received '" + message + "'");
         };
         while (true){
-            channel.basicConsume("id", true, deliverCallback, consumerTag -> { });
+            channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
         }
     }
 

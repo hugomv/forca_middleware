@@ -1,7 +1,4 @@
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.*;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -13,16 +10,22 @@ public class Servidor {
     static private Channel channel;
     static ConnectionFactory factory;
     private static TratarJogo jogo;
+    private static Connection connection;
 
 
     public static void main(String [] args) throws IOException, TimeoutException {
 
         factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        Connection connection = factory.newConnection();
-        channel = connection.createChannel();
+//        factory.setPort(61613);
+//        factory.setHost("localhost");
+//        factory.setUsername("guest");
+//        factory.setPassword("guest");
+        factory.setConnectionTimeout(10000);
+        connection = factory.newConnection();
+        System.out.print("Conexão criada");
 
         jogo = new TratarJogo();
+        System.out.print("Criado jogo");
 
         //thread para ouvir entrada de novos jogadores
         Thread ouvir_inclusao = new Thread(new Runnable() {
@@ -30,6 +33,7 @@ public class Servidor {
             public void run() {
 
                 try {
+                    channel = connection.createChannel();
                     recvInclusão();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -44,7 +48,9 @@ public class Servidor {
             @Override
             public void run() {
                 try {
-                    recv("jogada");
+                    channel = connection.createChannel();
+                    sendPlacar();
+                    recvJogada();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -78,9 +84,13 @@ public class Servidor {
             String message = new String(delivery.getBody(), "UTF-8");
             //System.out.println(" [x] Received '" + message + "'");
         };
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+        channel.basicConsume(queue, true, deliverCallback, consumerTag -> { });
     }
 
+    /**
+     * Ouve a solicitacao de entrada de novos jogadores
+     * @throws Exception
+     */
     public static void recvInclusão() throws Exception {
 
         channel.queueDeclare("inclusão", true, false, false, null);
@@ -96,12 +106,41 @@ public class Servidor {
             }
             //System.out.println(" [x] Received '" + message + "'");
         };
-        while (true){
-            channel.basicConsume("inclusão", true, deliverCallback, consumerTag -> { });
-        }
+//        while (true){
+//            channel.basicConsume("inclusão", true, deliverCallback, consumerTag -> { });
+//        }
+
+        channel.basicConsume("inclusão", false, "delivery",
+                new DefaultConsumer(channel) {
+                    @Override
+                    public void handleDelivery(String consumerTag,
+                                               Envelope envelope,
+                                               AMQP.BasicProperties properties,
+                                               byte[] body)
+                            throws IOException
+                    {
+                        String routingKey = envelope.getRoutingKey();
+                        String contentType = properties.getContentType();
+
+                        long deliveryTag = envelope.getDeliveryTag();
+                        int id = jogo.addJogador();
+                        try {
+                            send("id",id + "");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        // (process the message components here ...)
+                        channel.basicAck(deliveryTag, false);
+                    }
+                });
     }
 
+    /**
+     * Ouve novas jogadas na rede e envia o placarr atualizado em resposta
+     * @throws Exception
+     */
     public static void recvJogada() throws Exception {
+
 
         channel.queueDeclare("jogada", true, false, false, null);
         //System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
@@ -122,6 +161,10 @@ public class Servidor {
         }
     }
 
+    /**
+     * Envia o placar do jogo atualizado
+     * @throws Exception
+     */
     public static void sendPlacar() throws Exception {
 
             channel.exchangeDeclare("placar", "fanout");
