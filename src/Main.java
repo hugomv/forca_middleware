@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
@@ -53,7 +54,21 @@ public class Main {
 //                }
 //            };
 
-            new Thread(simple).start();
+            Thread t1 = new Thread(simple);
+
+            t1.start();
+
+            while ((!jogo.estah_Completo())){
+
+            }
+
+            t1.join(10);
+            System.out.println(String.format("Jogador %d Pontuacao %d",0,jogo.getJogador(0).getPontuacao()));
+            System.out.println(String.format("Jogador %d Pontuacao %d",1,jogo.getJogador(1).getPontuacao()));
+            System.out.println(String.format("Jogador %d Pontuacao %d",2,jogo.getJogador(2).getPontuacao()));
+
+
+
 //            new Thread(simple).start();
 //            new Thread(simple).start();
 //            new Thread(secure).start();

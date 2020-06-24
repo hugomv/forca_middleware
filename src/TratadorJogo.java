@@ -63,6 +63,7 @@ public class TratadorJogo implements Forca.Iface{
         Random gerador = new Random();
         jogadores.get(jogador.getId()).setPontuacao(gerador.nextInt(1000));
         aux.append(String.format("Pontuacao da roleta: %d \n",jogo.getRoleta()));
+        aux.append(String.format("Pontuacao total: %d \n",jogadores.get(jogador.getId()).getPontuacao()));
         aux.append(String.format("Jogador %d, informe uma letra ",jogador.getId()));
         placar.setPlacar(aux.toString());
         return placar;
