@@ -1,54 +1,97 @@
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TSocket;
-import org.apache.thrift.transport.TTransport;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
 
 import java.util.Scanner;
 
-
 public class Cliente {
 
+    static int id;
+    private static final String QUEUE_NAME = " ";
+    static private Channel channel;
+    static ConnectionFactory factory;
+    private static TratarJogo jogo;
+
+    public static void main(String[] args) throws Exception {
 
 
-    public static void main(String[] args) {
-
-
+        System.out.println("Informe seu id. Caso novo jogador, somente digite enter:");
+        Scanner teclado = new Scanner(System.in);
         try {
-            TTransport transport;
-
-            transport = new TSocket("localhost", 9090);
-            transport.open();
-
-
-            TProtocol protocol = new TBinaryProtocol(transport);
-            Forca.Client client = new Forca.Client(protocol);
-
-            perform(client);
-
-
-            transport.close();
-        } catch (TException x) {
-            x.printStackTrace();
+            id = Integer.parseInt(teclado.next());
+        }catch (NumberFormatException n){
+            System.out.print("Id incorreto ou inexistente. Iniciando novo jogador...");
+            send("inclusão","novo jogador");
+            recvID();
+            System.out.println(String.format("Você é de ID número: %d",id));
         }
 
-
-    }
-
-    private static void perform(Forca.Client client) throws TException {
-
-        idJogador id = client.set_jogador();
-
-        while (!client.estah_Completo()){
-
-            if(client.getVez()==id.getId()){
-                Placar placar = client.exibir_rodada(id);
-                System.out.print(placar.getPlacar());
-                Scanner teclado = new Scanner(System.in);
-                Letra letra = new Letra();
-                letra.setLetra(teclado.nextLine());
-                client.gerar_rodada(letra,id);
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    recvPlacar();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+        });
+
+        t1.start();
+
+        while (true){
+            System.out.print("Digite a letra: ");
+            String letra = teclado.nextLine();
+            send("jogada",String.format("%d;%s",id,letra));
+        }
+
+
+
+    }
+
+    public static void send(String queue, String message) throws Exception {
+
+
+        channel.queueDeclare(queue, true, false, false, null);
+        channel.basicPublish("", queue, null, message.getBytes());
+        //System.out.println(" [x] Sent '" + message + "'");
+
+
+
+    }
+
+    public static void recvID() throws Exception {
+
+
+        channel.queueDeclare("id", true, false, false, null);
+        //System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            id = Integer.parseInt(message);
+            //System.out.println(" [x] Received '" + message + "'");
+        };
+        channel.basicConsume("id", true, deliverCallback, consumerTag -> { });
+    }
+
+    public static void recvPlacar() throws Exception {
+
+
+        channel.exchangeDeclare("placar", "fanout");
+        String queueName = channel.queueDeclare().getQueue();
+        channel.queueBind(queueName, "placar", "");
+
+        //System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            System.out.print(message);
+            //System.out.println(" [x] Received '" + message + "'");
+        };
+        while (true){
+            channel.basicConsume("id", true, deliverCallback, consumerTag -> { });
         }
     }
+
+
 }

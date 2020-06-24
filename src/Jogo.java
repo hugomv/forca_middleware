@@ -16,6 +16,15 @@ public class Jogo{
 
         completo = false;
 
+        sortearPalavras();
+
+    }
+
+    /**
+     * Lê do arquivo "lista_de_palavras.txt" e sorteia três palavras
+     */
+    public void sortearPalavras(){
+
         //ler o arquivo
         try {
             FileReader arq = new FileReader("lista_de_palavras.txt");
@@ -39,7 +48,6 @@ public class Jogo{
         trespalavras.add(palavras.get(gerador.nextInt(palavras.size())-1));
         trespalavras.add(palavras.get(gerador.nextInt(palavras.size())-1));
 
-//        palavra = "amor";
         for(String palavra : trespalavras) {
             ArrayList<String> palavra_oculta = new ArrayList<String>();
             for (int i = 0; i < palavra.length(); i++) {
@@ -47,7 +55,6 @@ public class Jogo{
             }
             palavras_ocultas.add(palavra_oculta);
         }
-
     }
 
     /**
@@ -123,6 +130,22 @@ public class Jogo{
     private int gerarRoletaPontuacao(){
         Random gerador = new Random();
         return gerador.nextInt(1000);
+
+    }
+
+    /**
+     * Exibir o placar de forma simplificada
+     * @return
+     */
+    public String exibirRodada(){
+
+        StringBuilder saida = new StringBuilder();
+
+        for(ArrayList<String> palavra_oculta : palavras_ocultas) {
+            saida.append((palavra_oculta) + "\n");
+        }
+
+        return saida.toString();
 
     }
 
